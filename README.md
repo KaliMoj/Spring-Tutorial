@@ -8,8 +8,8 @@
   2. Your application should follow the standard MVC pattern, so you would have `@Controller` talking to `@Service` talking to Repositories/DAOs
   3. Your application should use a relational (SQL) database as a backend. So you don’t have to install one, you can look at options like H2 or HSQLDB which are lightweight databases that can also be in-memory (basically they are clean when your server starts up and die when you turn off your server).
   4. From a business requirements perspective here’s what I would have it do first  
-    * [ ] POST /user creates a new “user” and returns the user’s ID
-    * [ ] GET /user/{userid} returns the details of a user (you can choose what details you want, but I would suggest maybe email and user id)
+    * [x] POST /user creates a new “user” and returns the user’s ID
+    * [x] GET /user/{userid} returns the details of a user (you can choose what details you want, but I would suggest maybe email and user id)
     * [ ] GET /user/{userid}/tasks returns a list of tasks for the user with the given id
     * [ ] DELETE /user/{userid} “soft-delete” a user, basically means the user is not active
     * [ ] POST /user/{userid}/tasks creates a new task with the task given as part of the request body for the given user and returns the task id
