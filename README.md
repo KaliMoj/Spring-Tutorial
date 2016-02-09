@@ -11,7 +11,7 @@
     * [x] POST /user creates a new “user” and returns the user’s ID
     * [x] GET /user/{userid} returns the details of a user (you can choose what details you want, but I would suggest maybe email and user id)
     * [ ] GET /user/{userid}/tasks returns a list of tasks for the user with the given id
-    * [ ] DELETE /user/{userid} “soft-delete” a user, basically means the user is not active
+    * [x] DELETE /user/{userid} “soft-delete” a user, basically means the user is not active
     * [ ] POST /user/{userid}/tasks creates a new task with the task given as part of the request body for the given user and returns the task id
     * [ ] PUT /tasks/{taskid} updates an existing task with the task given as part of the request body
     * [ ] DELETE /tasks/{taskid} performs a “soft-delete” that sets the task as inactive
