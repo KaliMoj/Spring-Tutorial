@@ -10,9 +10,9 @@
   4. From a business requirements perspective here’s what I would have it do first  
     * [x] POST /user creates a new “user” and returns the user’s ID
     * [x] GET /user/{userid} returns the details of a user (you can choose what details you want, but I would suggest maybe email and user id)
-    * [ ] GET /user/{userid}/tasks returns a list of tasks for the user with the given id
+    * [x] GET /user/{userid}/tasks returns a list of tasks for the user with the given id
     * [x] DELETE /user/{userid} “soft-delete” a user, basically means the user is not active
-    * [ ] POST /user/{userid}/tasks creates a new task with the task given as part of the request body for the given user and returns the task id
+    * [x] POST /user/{userid}/tasks creates a new task with the task given as part of the request body for the given user and returns the task id
     * [ ] PUT /tasks/{taskid} updates an existing task with the task given as part of the request body
     * [ ] DELETE /tasks/{taskid} performs a “soft-delete” that sets the task as inactive
     * [ ] Tasks for inactive users should not be able to be deleted and should return an appropriate HTTP error code (you can look up the 400 range error codes on Wikipedia).
