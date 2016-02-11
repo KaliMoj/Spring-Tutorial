@@ -1,7 +1,7 @@
 package tasks.dao;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -24,21 +24,21 @@ public class User {
 	private boolean isActive = true;
 	
 	@OneToMany(mappedBy="associatedUser", cascade=CascadeType.ALL) 
-	private List<Task> tasks = new ArrayList<Task>();
+	private Set<Task> tasks = new HashSet<Task>();
 	
 	public User() {
 	}
 	
 	public void addTask(Task task) {
-		//task.setUser(this);
+		task.setUser(this);
 		tasks.add(task);
 	}
 
-	public List<Task> getTasks() {
+	public Set<Task> getTasks() {
 		return tasks;
 	}
 
-	public void setTasks(List<Task> tasks) {
+	public void setTasks(Set<Task> tasks) {
 		this.tasks = tasks;
 	}
 

@@ -1,10 +1,12 @@
 package tasks;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.h2.util.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import tasks.dao.User;
@@ -50,39 +53,52 @@ public class UserControllerTest {
 	public void setUp() {
 		mvc = MockMvcBuilders.webAppContextSetup(context).build();
 	}
-
+	
 	@Test
-	public void getUser() throws Exception {
+	@Transactional
+	public void createUser() throws Exception {
+		preventGetRequestCreateNewUser();
+		long userId = createNewUser();
+		getUser(userId);
+	}
+	
+	@Test
+	@Transactional
+	public void deleteUser() throws Exception {
+		long userId = userJpaRepository.save(getMockUser()).getId();
+		softDeleteUser(userId);
+	}
+
+	public void getUser(long userId) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
-		User user = getMockUser();
-		long userId = userJpaRepository.save(user).getId();
+		User user = userJpaRepository.findOne(userId);
 		
 		mvc.perform(MockMvcRequestBuilders.get("/user/" + userId).accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andExpect(content().string(equalTo(mapper.writeValueAsString(user))));
 	}
 	
-	@Test
-	public void createNewUser() throws Exception {
+	public long createNewUser() throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 		User mockUser = getMockUser();
-		mvc.perform(MockMvcRequestBuilders.post("/user/add")
+		MvcResult result = mvc.perform(MockMvcRequestBuilders.post("/user/add")
 				.content(mapper.writeValueAsString(mockUser)).contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isOk());
+				.andExpect(status().isOk())
+				.andReturn();
+		
+		String response = result.getResponse().getContentAsString();
+		assertFalse("Response is not empty", response.isEmpty());
+		assertTrue("Response is a number", StringUtils.isNumber(response));
+		return Long.parseUnsignedLong(response);
 	}
 	
-	@Test
 	public void preventGetRequestCreateNewUser() throws Exception {
 		mvc.perform(MockMvcRequestBuilders.get("/user/add").accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().is4xxClientError());
 	}
 	
-	@Test
-	public void softDeleteUser() throws Exception {
-		User user = getMockUser();
-		long userId = userJpaRepository.save(user).getId();
-		
-		assertTrue("User is active", user.isActive());
+	public void softDeleteUser(long userId) throws Exception {
+		assertTrue("User is active", userJpaRepository.findOne(userId).isActive());
 		mvc.perform(MockMvcRequestBuilders.delete("/user/" + userId).accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk());
 		assertFalse("User is not active", userJpaRepository.findOne(userId).isActive());
