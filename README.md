@@ -14,8 +14,8 @@
     * [x] DELETE /user/{userid} “soft-delete” a user, basically means the user is not active
     * [x] POST /user/{userid}/tasks creates a new task with the task given as part of the request body for the given user and returns the task id
     * [ ] PUT /tasks/{taskid} updates an existing task with the task given as part of the request body
-    * [ ] DELETE /tasks/{taskid} performs a “soft-delete” that sets the task as inactive
-    * [ ] Tasks for inactive users should not be able to be deleted and should return an appropriate HTTP error code (you can look up the 400 range error codes on Wikipedia).
+    * [x] DELETE /tasks/{taskid} performs a “soft-delete” that sets the task as inactive
+    * [x] Tasks for inactive users should not be able to be deleted and should return an appropriate HTTP error code (you can look up the 400 range error codes on Wikipedia).
     * [ ] Request bodies that are mal-formed should also return an appropriate HTTP error code (again, up to you what “appropriate” means)
   5. Make sure to include unit tests
   6. Make sure to include tests that make use of Spring MockMVC framework
