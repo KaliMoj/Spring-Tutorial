@@ -22,9 +22,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import tasks.bol.UserService;
 import tasks.dao.User;
-import tasks.dao.UserRepository;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -36,7 +35,7 @@ public class UserControllerTest {
 	private WebApplicationContext context;
 	
 	@Autowired
-	private UserRepository userJpaRepository;
+	private UserService userService;
 	
 	private MockMvc mvc;
 	
@@ -65,13 +64,13 @@ public class UserControllerTest {
 	@Test
 	@Transactional
 	public void deleteUser() throws Exception {
-		long userId = userJpaRepository.save(getMockUser()).getId();
+		long userId = userService.saveUser(getMockUser()).getId();
 		softDeleteUser(userId);
 	}
 
 	public void getUser(long userId) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
-		User user = userJpaRepository.findOne(userId);
+		User user = userService.getUserById(userId);
 		
 		mvc.perform(MockMvcRequestBuilders.get("/user/" + userId).accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
@@ -98,9 +97,9 @@ public class UserControllerTest {
 	}
 	
 	public void softDeleteUser(long userId) throws Exception {
-		assertTrue("User is active", userJpaRepository.findOne(userId).isActive());
+		assertTrue("User is active", userService.getUserById(userId).isActive());
 		mvc.perform(MockMvcRequestBuilders.delete("/user/" + userId).accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk());
-		assertFalse("User is not active", userJpaRepository.findOne(userId).isActive());
+		assertFalse("User is not active", userService.getUserById(userId).isActive());
 	}
 }

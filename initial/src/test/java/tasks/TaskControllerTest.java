@@ -1,8 +1,7 @@
 package tasks;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -13,7 +12,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,10 +21,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import tasks.bol.TaskService;
+import tasks.bol.UserService;
 import tasks.dao.Task;
-import tasks.dao.TaskRepository;
 import tasks.dao.User;
-import tasks.dao.UserRepository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -39,9 +37,9 @@ public class TaskControllerTest {
 	private WebApplicationContext context;
 	
 	@Autowired
-	private UserRepository userJpaRepository;
+	private UserService userService;
 	@Autowired
-	private TaskRepository taskJpaRepository;
+	private TaskService taskService;
 	
 	private MockMvc mvc;
 	
@@ -77,6 +75,17 @@ public class TaskControllerTest {
 	
 	@Test
 	@Transactional
+	public void updateTask() throws Exception {
+		long userId = createUser();
+		long taskId = createUserTask(userId);
+		Task task = taskService.getTaskById(taskId);
+		
+		task.setDescription("Give le Moj his meds");
+		updateTask(taskId, task);
+	}
+	
+	@Test
+	@Transactional
 	public void deleteActiveUserTask() throws Exception {
 		long userId = createUser();
 		long taskId = createUserTask(userId);
@@ -88,16 +97,14 @@ public class TaskControllerTest {
 	public void deleteInactiveUserTask() throws Exception {
 		long userId = createUser();
 		long taskId = createUserTask(userId);
-		User user = userJpaRepository.findOne(userId);
-		user.setActive(false);
-		userJpaRepository.save(user);
+		userService.deleteUser(userId);
 		
 		deleteInactiveUserTask(taskId);
 	}
 	
 	public long createUser() {
 		User user = getMockUser();
-		return userJpaRepository.save(user).getId();
+		return userService.saveUser(user).getId();
 	}
 	
 	public void getEmptyUserTaskList(long userId) throws Exception {
@@ -125,7 +132,7 @@ public class TaskControllerTest {
 	
 	public void getNonEmptyUserTaskList(long userId) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
-		User user = userJpaRepository.findOne(userId);
+		User user = userService.getUserById(userId);
 		
 		mvc.perform(MockMvcRequestBuilders.get("/user/" + userId + "/tasks")
 				.accept(MediaType.APPLICATION_JSON))
@@ -133,16 +140,29 @@ public class TaskControllerTest {
 				.andExpect(content().string(equalTo(mapper.writeValueAsString(user.getTasks()))));
 	}
 	
+	public void updateTask(long taskId, Task task) throws Exception {
+		ObjectMapper mapper = new ObjectMapper();
+		
+		mvc.perform(MockMvcRequestBuilders.put("/tasks/" + taskId)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(task)))
+				.andExpect(status().isOk());
+
+		task.setId(taskId);
+		Task taskOnDisk = taskService.getTaskById(taskId);
+		assertEquals("Task has been updated.", mapper.writeValueAsString(taskOnDisk), mapper.writeValueAsString(task));
+	}
+	
 	public void deleteActiveUserTask(long taskId) throws Exception {
-		assertTrue("Task is active", taskJpaRepository.findOne(taskId).isActive());
+		assertTrue("Task is active", taskService.getTaskById(taskId).isActive());
 		mvc.perform(MockMvcRequestBuilders.delete("/tasks/" + taskId)
 				.accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk());
-		assertFalse("Task is not active", taskJpaRepository.findOne(taskId).isActive());
+		assertFalse("Task is not active", taskService.getTaskById(taskId).isActive());
 	}
 	
 	public void deleteInactiveUserTask(long taskId) throws Exception {
-		Task task = taskJpaRepository.findOne(taskId);
+		Task task = taskService.getTaskById(taskId);
 		
 		assertFalse("User is not active", task.getUser().isActive());
 		mvc.perform(MockMvcRequestBuilders.delete("/tasks/" + taskId)

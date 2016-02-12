@@ -14,3 +14,9 @@
 
   - SOLUTION: Tables were only created / dropped at the end of running all tests. So even though the newly created records were rolled back, the nature of database ids is that they continue incrementing. Changed assertions to check for non-empty and numeric response rather than a specific id.
   
+5. Curl options to keep in mind
+
+  * `-X` method request type (POST / PUT / DELETE etc)
+  * `-v` place as one of the initial options; view header request information
+  * `-H` set header information (ie - `Content-Type`)
+  * `-d` response body being submitted with the request 

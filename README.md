@@ -13,7 +13,7 @@
     * [x] GET /user/{userid}/tasks returns a list of tasks for the user with the given id
     * [x] DELETE /user/{userid} “soft-delete” a user, basically means the user is not active
     * [x] POST /user/{userid}/tasks creates a new task with the task given as part of the request body for the given user and returns the task id
-    * [ ] PUT /tasks/{taskid} updates an existing task with the task given as part of the request body
+    * [x] PUT /tasks/{taskid} updates an existing task with the task given as part of the request body
     * [x] DELETE /tasks/{taskid} performs a “soft-delete” that sets the task as inactive
     * [x] Tasks for inactive users should not be able to be deleted and should return an appropriate HTTP error code (you can look up the 400 range error codes on Wikipedia).
     * [ ] Request bodies that are mal-formed should also return an appropriate HTTP error code (again, up to you what “appropriate” means)

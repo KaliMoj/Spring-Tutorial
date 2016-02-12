@@ -9,49 +9,37 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import tasks.bol.InactiveUserTaskException;
-import tasks.bol.TaskNotFoundException;
-import tasks.bol.UserNotFoundException;
+import tasks.bol.TaskService;
+import tasks.bol.UserService;
 import tasks.dao.Task;
-import tasks.dao.TaskRepository;
 import tasks.dao.User;
-import tasks.dao.UserRepository;
 
 @RestController
 public class TaskController {
 	
 	@Autowired
-	private TaskRepository taskJpaRepository;
+	private TaskService taskService;
 	@Autowired
-	private UserRepository userJpaRepository;
+	private UserService userService;
 
 	@RequestMapping(value="/user/{userid}/tasks", method=RequestMethod.POST)
-    public long createUserTask(@PathVariable("userid") long userid, @RequestBody Task task) {
-		User user = userJpaRepository.findOne(userid);
-		if (user == null) throw new UserNotFoundException();
-
-		task.setUser(user);
-		return taskJpaRepository.save(task).getId();
+    public long createUserTask(@PathVariable("userid") long userId, @RequestBody Task task) {
+		User user = userService.getUserById(userId);
+		return taskService.createTaskForUser(task, user).getId();
     }
 	
-	/**
-	 * List tasks
-	 * @param userid
-	 * @return
-	 */
 	@RequestMapping(value="/user/{userid}/tasks", method=RequestMethod.GET)
     public Set<Task> getUserTasks(@PathVariable("userid") long userId) {
-		User user = userJpaRepository.findOne(userId);
-		if (user == null) throw new UserNotFoundException();
-		return user.getTasks();
+		return userService.getUserById(userId).getTasks();
     }
 	
 	@RequestMapping(value="/tasks/{taskid}", method=RequestMethod.DELETE)
 	public void deleteTask(@PathVariable("taskid") long taskId) {
-		Task task = taskJpaRepository.findOne(taskId);
-		if (task == null) throw new TaskNotFoundException();
-		if (!task.getUser().isActive()) throw new InactiveUserTaskException();
-		task.setActive(false);
-		taskJpaRepository.save(task);
+		taskService.deleteTask(taskId);
 	}
+	
+	@RequestMapping(value="/tasks/{taskid}", method=RequestMethod.PUT)
+    public void updateTask(@PathVariable("taskid") long taskId, @RequestBody Task task) {
+		taskService.updateTask(taskId, task);
+    }
 }
