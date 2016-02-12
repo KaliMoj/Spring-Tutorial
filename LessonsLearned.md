@@ -17,6 +17,6 @@
 5. Curl options to keep in mind
 
   * `-X` method request type (POST / PUT / DELETE etc)
-  * `-v` place as one of the initial options; view header request information
+  * `-v` place as one of the initial options; view header information
   * `-H` set header information (ie - `Content-Type`)
   * `-d` response body being submitted with the request 
