@@ -67,7 +67,7 @@ public class TaskControllerTest {
 	@Test
 	@Transactional
 	public void createTask() throws Exception {
-		long userId = createUser();
+		Long userId = createUser();
 		getEmptyUserTaskList(userId);
 		createUserTask(userId);
 		getNonEmptyUserTaskList(userId);
@@ -76,45 +76,45 @@ public class TaskControllerTest {
 	@Test
 	@Transactional
 	public void updateTask() throws Exception {
-		long userId = createUser();
-		long taskId = createUserTask(userId);
-		Task task = taskService.getTaskById(taskId);
+		Long userId = createUser();
+		Long taskId = createUserTask(userId);
+		//Task task = taskService.getTaskById(taskId);
 		
-		task.setDescription("Give le Moj his meds");
-		updateTask(taskId, task);
+		//task.setDescription("Give le Moj his meds");
+		updateTask(taskId);
 	}
 	
 	@Test
 	@Transactional
 	public void deleteActiveUserTask() throws Exception {
-		long userId = createUser();
-		long taskId = createUserTask(userId);
+		Long userId = createUser();
+		Long taskId = createUserTask(userId);
 		deleteActiveUserTask(taskId);
 	}
 	
 	@Test
 	@Transactional
 	public void deleteInactiveUserTask() throws Exception {
-		long userId = createUser();
-		long taskId = createUserTask(userId);
+		Long userId = createUser();
+		Long taskId = createUserTask(userId);
 		userService.deleteUser(userId);
 		
 		deleteInactiveUserTask(taskId);
 	}
 	
-	public long createUser() {
+	public Long createUser() {
 		User user = getMockUser();
 		return userService.saveUser(user).getId();
 	}
 	
-	public void getEmptyUserTaskList(long userId) throws Exception {
+	public void getEmptyUserTaskList(Long userId) throws Exception {
 		mvc.perform(MockMvcRequestBuilders.get("/user/" + userId + "/tasks")
 				.accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andExpect(content().string("[]"));
 	}
 
-	public long createUserTask(long userId) throws Exception {
+	public Long createUserTask(Long userId) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 		Task task = getMockTask();
 		
@@ -130,7 +130,7 @@ public class TaskControllerTest {
 		return Long.parseUnsignedLong(response);
 	}
 	
-	public void getNonEmptyUserTaskList(long userId) throws Exception {
+	public void getNonEmptyUserTaskList(Long userId) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 		User user = userService.getUserById(userId);
 		
@@ -140,20 +140,23 @@ public class TaskControllerTest {
 				.andExpect(content().string(equalTo(mapper.writeValueAsString(user.getTasks()))));
 	}
 	
-	public void updateTask(long taskId, Task task) throws Exception {
-		ObjectMapper mapper = new ObjectMapper();
+	public void updateTask(Long taskId) throws Exception {
+		Task taskBeforeUpdate = taskService.getTaskById(taskId);
+		String taskDescriptionBeforeUpdate = taskBeforeUpdate.getDescription();
+		Long taskUserIdBeforeUpdate = taskBeforeUpdate.getUser().getId();
 		
 		mvc.perform(MockMvcRequestBuilders.put("/tasks/" + taskId)
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(mapper.writeValueAsString(task)))
+				.content("{\"description\":\"Give le Moj his meds\"}"))
 				.andExpect(status().isOk());
 
-		task.setId(taskId);
-		Task taskOnDisk = taskService.getTaskById(taskId);
-		assertEquals("Task has been updated.", mapper.writeValueAsString(taskOnDisk), mapper.writeValueAsString(task));
+		Task taskAfterUpdate = taskService.getTaskById(taskId);
+		
+		assertEquals("Task has the same user id", taskUserIdBeforeUpdate, taskAfterUpdate.getUser().getId());
+		assertFalse("Task has different descriptions", taskDescriptionBeforeUpdate.equals(taskAfterUpdate.getDescription()));
 	}
 	
-	public void deleteActiveUserTask(long taskId) throws Exception {
+	public void deleteActiveUserTask(Long taskId) throws Exception {
 		assertTrue("Task is active", taskService.getTaskById(taskId).isActive());
 		mvc.perform(MockMvcRequestBuilders.delete("/tasks/" + taskId)
 				.accept(MediaType.APPLICATION_JSON))
@@ -161,12 +164,12 @@ public class TaskControllerTest {
 		assertFalse("Task is not active", taskService.getTaskById(taskId).isActive());
 	}
 	
-	public void deleteInactiveUserTask(long taskId) throws Exception {
+	public void deleteInactiveUserTask(Long taskId) throws Exception {
 		Task task = taskService.getTaskById(taskId);
 		
 		assertFalse("User is not active", task.getUser().isActive());
 		mvc.perform(MockMvcRequestBuilders.delete("/tasks/" + taskId)
 				.accept(MediaType.APPLICATION_JSON))
-				.andExpect(status().isMethodNotAllowed());
+				.andExpect(status().isBadRequest());
 	}
 }

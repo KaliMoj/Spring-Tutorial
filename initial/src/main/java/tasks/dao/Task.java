@@ -15,7 +15,7 @@ public class Task {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name="task_id")
-	private long id;
+	private Long id;
 	private String description;
 	private boolean isActive;
 	@ManyToOne
@@ -51,11 +51,11 @@ public class Task {
 		this.isActive = isActive;
 	}
 
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 }

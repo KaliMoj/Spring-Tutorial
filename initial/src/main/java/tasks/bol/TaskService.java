@@ -13,7 +13,7 @@ public class TaskService {
 	@Autowired
 	private TaskRepository taskJpaRepository;
 
-	public Task getTaskById(long taskId) {
+	public Task getTaskById(Long taskId) {
 		Task task = taskJpaRepository.findOne(taskId);
 		if (task == null) throw new TaskNotFoundException();
 		return task;
@@ -24,20 +24,23 @@ public class TaskService {
 		return saveTask(task);
 	}
 	
-	public void deleteTask(long taskId) {
+	public void deleteTask(Long taskId) {
 		Task task = getTaskById(taskId);
 		if (!task.getUser().isActive()) throw new InactiveUserTaskException();
 		task.setActive(false);
 		saveTask(task);
 	}
 	
-	public Task updateTask(long taskId, Task task) {
+	public Task updateTask(Long taskId, Task task) {
 		if (!taskExists(taskId)) throw new TaskNotFoundException();
-		task.setId(taskId);
-		return saveTask(task);
+		
+		Task taskOnDisk = taskJpaRepository.findOne(taskId);
+		taskOnDisk.setDescription(task.getDescription());
+		
+		return saveTask(taskOnDisk);
 	}
 	
-	private boolean taskExists(long taskId) {
+	private boolean taskExists(Long taskId) {
 		return taskJpaRepository.exists(taskId);
 	}
 	

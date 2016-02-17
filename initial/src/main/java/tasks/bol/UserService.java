@@ -12,7 +12,7 @@ public class UserService {
 	@Autowired
 	private UserRepository userJpaRepository;
 
-	public User getUserById(long userId) {
+	public User getUserById(Long userId) {
 		User user = userJpaRepository.findOne(userId);
 		if (user == null) throw new UserNotFoundException();
 		return user;
@@ -22,7 +22,7 @@ public class UserService {
 		return userJpaRepository.save(user);
 	}
 	
-	public void deleteUser(long userId) {
+	public void deleteUser(Long userId) {
 		User user = getUserById(userId);
 		deactivateUser(user);
 		saveUser(user);

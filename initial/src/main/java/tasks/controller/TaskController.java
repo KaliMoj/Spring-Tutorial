@@ -23,23 +23,23 @@ public class TaskController {
 	private UserService userService;
 
 	@RequestMapping(value="/user/{userid}/tasks", method=RequestMethod.POST)
-    public long createUserTask(@PathVariable("userid") long userId, @RequestBody Task task) {
+    public Long createUserTask(@PathVariable("userid") Long userId, @RequestBody Task task) {
 		User user = userService.getUserById(userId);
 		return taskService.createTaskForUser(task, user).getId();
     }
 	
 	@RequestMapping(value="/user/{userid}/tasks", method=RequestMethod.GET)
-    public Set<Task> getUserTasks(@PathVariable("userid") long userId) {
+    public Set<Task> getUserTasks(@PathVariable("userid") Long userId) {
 		return userService.getUserById(userId).getTasks();
     }
 	
 	@RequestMapping(value="/tasks/{taskid}", method=RequestMethod.DELETE)
-	public void deleteTask(@PathVariable("taskid") long taskId) {
+	public void deleteTask(@PathVariable("taskid") Long taskId) {
 		taskService.deleteTask(taskId);
 	}
 	
 	@RequestMapping(value="/tasks/{taskid}", method=RequestMethod.PUT)
-    public void updateTask(@PathVariable("taskid") long taskId, @RequestBody Task task) {
+    public void updateTask(@PathVariable("taskid") Long taskId, @RequestBody Task task) {
 		taskService.updateTask(taskId, task);
     }
 }

@@ -57,18 +57,18 @@ public class UserControllerTest {
 	@Transactional
 	public void createUser() throws Exception {
 		preventGetRequestCreateNewUser();
-		long userId = createNewUser();
+		Long userId = createNewUser();
 		getUser(userId);
 	}
 	
 	@Test
 	@Transactional
 	public void deleteUser() throws Exception {
-		long userId = userService.saveUser(getMockUser()).getId();
+		Long userId = userService.saveUser(getMockUser()).getId();
 		softDeleteUser(userId);
 	}
 
-	public void getUser(long userId) throws Exception {
+	public void getUser(Long userId) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 		User user = userService.getUserById(userId);
 		
@@ -77,10 +77,10 @@ public class UserControllerTest {
 				.andExpect(content().string(equalTo(mapper.writeValueAsString(user))));
 	}
 	
-	public long createNewUser() throws Exception {
+	public Long createNewUser() throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 		User mockUser = getMockUser();
-		MvcResult result = mvc.perform(MockMvcRequestBuilders.post("/user/add")
+		MvcResult result = mvc.perform(MockMvcRequestBuilders.post("/user")
 				.content(mapper.writeValueAsString(mockUser)).contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andReturn();
@@ -92,11 +92,11 @@ public class UserControllerTest {
 	}
 	
 	public void preventGetRequestCreateNewUser() throws Exception {
-		mvc.perform(MockMvcRequestBuilders.get("/user/add").accept(MediaType.APPLICATION_JSON))
+		mvc.perform(MockMvcRequestBuilders.get("/user").accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().is4xxClientError());
 	}
 	
-	public void softDeleteUser(long userId) throws Exception {
+	public void softDeleteUser(Long userId) throws Exception {
 		assertTrue("User is active", userService.getUserById(userId).isActive());
 		mvc.perform(MockMvcRequestBuilders.delete("/user/" + userId).accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk());

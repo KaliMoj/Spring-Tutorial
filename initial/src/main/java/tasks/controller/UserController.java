@@ -16,18 +16,18 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 	
-	@RequestMapping(value="/user/add", method=RequestMethod.POST)
-    public long createUser(@RequestBody User user) {
+	@RequestMapping(value="/user", method=RequestMethod.POST)
+    public Long createUser(@RequestBody User user) {
 		return userService.saveUser(user).getId();
     }
 	
 	@RequestMapping(value="/user/{userid}", method=RequestMethod.GET)
-    public User getUser(@PathVariable("userid") long userId) {
+    public User getUser(@PathVariable("userid") Long userId) {
         return userService.getUserById(userId);
     }
 	
 	@RequestMapping(value="/user/{userid}", method=RequestMethod.DELETE)
-    public void deleteUser(@PathVariable("userid") long userId) {
+    public void deleteUser(@PathVariable("userid") Long userId) {
 		userService.deleteUser(userId);
     }
 }
