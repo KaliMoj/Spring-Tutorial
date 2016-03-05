@@ -3,6 +3,7 @@ package tasks.controller;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,7 @@ import tasks.dao.Task;
 import tasks.dao.User;
 
 @RestController
+@CrossOrigin(origins="*")
 public class TaskController {
 	
 	@Autowired
@@ -23,9 +25,9 @@ public class TaskController {
 	private UserService userService;
 
 	@RequestMapping(value="/user/{userid}/tasks", method=RequestMethod.POST)
-    public Long createUserTask(@PathVariable("userid") Long userId, @RequestBody Task task) {
+    public Task createUserTask(@PathVariable("userid") Long userId, @RequestBody Task task) {
 		User user = userService.getUserById(userId);
-		return taskService.createTaskForUser(task, user).getId();
+		return taskService.createTaskForUser(task, user);
     }
 	
 	@RequestMapping(value="/user/{userid}/tasks", method=RequestMethod.GET)

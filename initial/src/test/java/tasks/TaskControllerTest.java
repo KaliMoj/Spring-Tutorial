@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.h2.util.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -124,10 +123,10 @@ public class TaskControllerTest {
 				.andExpect(status().isOk())
 				.andReturn();
 		
-		String response = result.getResponse().getContentAsString();
-		assertFalse("Response is not empty", response.isEmpty());
-		assertTrue("Response is a number", StringUtils.isNumber(response));
-		return Long.parseUnsignedLong(response);
+		byte[] response = result.getResponse().getContentAsByteArray();
+		Task taskResponse = mapper.readValue(response, Task.class);
+		assertFalse("Response is not empty", response.length == 0);
+		return taskResponse.getId();
 	}
 	
 	public void getNonEmptyUserTaskList(Long userId) throws Exception {
